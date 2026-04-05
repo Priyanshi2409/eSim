@@ -13,7 +13,7 @@ FLAG="$TARGET/.esim_kicad_setup_done"
 
 # eSim Configuration
 
-if [ ! -d "$config_dir_esim/.setup_done" ]; then
+if [ ! -f "$config_dir_esim/.setup_done" ]; then
     mkdir -p $config_dir_esim
 
     echo "[eSim]" > $config_dir_esim/$config_file
@@ -53,7 +53,8 @@ if [ ! -f "$FLAG" ]; then
     install -d "$TARGET/template"
 
 #    cp -r "$SNAP/3rdparty/symbols/." "$TARGET/symbols/"
-    cp "$SNAP/3rdparty/template/sym-lib-table" "$TARGET/template/"
+     BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+     cp "$BASE_DIR/library/kicadLibrary/template/sym-lib-table" "$TARGET/template/"
 
     touch "$FLAG"
     echo "eSim libraries setup completed."
