@@ -1,0 +1,198 @@
+
+
+                                                                         eSim 2.5 Installation and Debugging Report
+
+
+
+1. Objective
+
+The objective of this task was to install eSim 2.5 on Ubuntu 25.04, identify issues related to dependencies or compatibility, and fix at least one issue by analyzing and modifying the 
+installation scripts.
+
+
+
+2. Approach
+
+I started by running the eSim installation script on Ubuntu 25.04 and carefully observed the errors appearing at different stages. Instead of switching environments immediately, I
+first tried to understand each issue properly.
+
+To investigate the problems, I:
+
+- read terminal error messages step by step
+- explored the installation scripts using "nano"
+- used commands like "grep" to locate problematic lines
+- modified the script where necessary and re-ran the installer
+
+After facing repeated failures, I also tested the installation on Ubuntu 24.04 to compare behavior and confirm whether the issues were due to the operating system version.
+
+
+
+3. **Issues Encountered on Ubuntu 25**
+
+#Issue 1: Unsupported Ubuntu Version
+
+Error Observed:
+The installer stopped with the message:
+“Unsupported Ubuntu version: 25.xx”
+
+Investigation:
+I checked the main script ("install-eSim.sh") and found that it uses a "case" statement based on Ubuntu version. However, only versions up to 24.04 were included.
+
+To confirm the Ubuntu version, I used:
+    lsb_release -a
+
+This showed that the system was running Ubuntu 25, which is not handled in the script.
+
+Analysis:
+Since Ubuntu 25 was not handled in the script, the installer exited immediately.
+
+Conclusion:
+This reveals a limitation in the script design, where support for operating systems is hardcoded. As a result, newer versions like Ubuntu 25 fail even if they are largely compatible.
+A more robust approach would be to rely on dependency or feature detection instead of strict version checks, improving maintainability and forward compatibility.
+
+
+#Issue 2: Incorrect apt-get Command (Fixed)
+
+Error Observed:
+    “Invalid operation xz-utils”
+
+Investigation:
+To locate the issue, I used:
+    grep -rn "xz-utils" .
+
+This helped me identify the exact line in the script where the incorrect command was written.
+
+Analysis:
+The command is incorrect because "apt-get" requires the "install" keyword before specifying the package name. This type of syntax error indicates that the script lacks validation or
+testing for command correctness, which can break the entire installation process even for a small mistake.
+
+Fix Applied:
+I corrected the command to:
+
+    sudo apt-get install -y xz-utils
+
+Verification:
+After correcting the command and re-running the installer, the error was resolved and the installation progressed further. This confirmed that the issue was due to incorrect command
+syntax rather than a deeper dependency problem.
+
+
+#Issue 3: KiCad Repository (PPA) Error
+
+Error Observed:
+404 Not Found – repository does not have a Release file
+
+Investigation:
+While running-
+    sudo apt update
+
+I observed that the KiCad repository returned a 404 error and did not support the Ubuntu 25 codename.
+
+Analysis:
+The installer assumes availability of the KiCad PPA, but it does not provide packages for newer Ubuntu versions.
+
+Conclusion:
+This is an external compatibility issue rather than a direct bug in the script. However, the installer assumes availability of the repository without validation. A better design
+would include checks for repository support or fallback mechanisms to prevent complete failure.
+
+
+#Issue 4: Repeated Dependency Failures
+
+Observation:
+Even after fixing one issue, new errors appeared at later stages of installation.
+
+Investigation:
+To further analyze dependency issues, I ran:
+    sudo apt update 
+
+During execution of this command, multiple repository-related and dependency errors were observed, indicating incompatibility with newer Ubuntu 25 repositories.
+
+Analysis:
+This indicates that the installer is tightly coupled with specific Ubuntu versions and their supported repositories. As newer operating systems evolve, such strict dependency
+assumptions can lead to cascading failures. This highlights the importance of designing installation systems that are resilient to environmental changes.
+
+Conclusion:
+Ubuntu 25.04 is not currently stable for this installation due to multiple compatibility issues.
+
+
+
+4. **Verification on Ubuntu 24.04**
+
+To verify whether the issues were version-specific, I performed the same installation on Ubuntu 24.04.
+
+Observations:
+
+- The installer did not show the unsupported version error
+- Dependency installation worked correctly
+- The installation progressed much further compared to Ubuntu 25.04
+
+Key Insight:
+The same script works properly on Ubuntu 24.04, confirming that most issues in Ubuntu 25.04 are due to compatibility limitations rather than incorrect logic (except the apt command 
+bug).
+
+
+
+5. Improvements and Suggestions
+
+During this process, I observed that the installer relies heavily on strict version-based checks and fixed assumptions.
+
+A better approach would be:
+- to use dependency-based or feature-based checks instead of hardcoding OS versions
+- to allow execution with warnings instead of stopping completely for newer versions
+- to validate external repositories before using them
+- to include fallback mechanisms when dependencies are unavailable
+- The version check logic can be modified to allow Ubuntu 25 with warning messages instead of exiting immediately, enabling partial compatibility.
+
+These improvements would make the installer more flexible, robust, and future-proof.
+
+
+
+6. Suggested Workaround for KiCad Issue
+
+One possible workaround for the KiCad repository issue is to:
+
+- use alternative installation methods like Flatpak or Snap
+- or skip the KiCad installation step when the repository is unavailable
+
+This would allow the rest of the installation to proceed without interruption.
+
+
+
+7. Example of Script Modification
+
+The following change was made during debugging:
+
+Original Command:
+    sudo apt-get xz-utils
+
+Modified Command:
+    sudo apt-get install -y xz-utils
+
+This correction ensured proper installation of the required package and allowed the process to continue.
+
+Insight:
+This issue highlights how even a small syntax error in automation scripts can completely break workflows. It also emphasizes the need for careful validation and testing of
+installation scripts. More importantly, it suggests that scripts should include basic error handling or command validation to prevent such failures.
+
+
+
+8. Key Learnings
+
+- Small syntax errors in scripts can completely break installation workflows
+- Debugging requires reading and understanding scripts, not just reacting to errors
+- Tools like "grep" help quickly locate issues in large codebases
+- New OS versions often introduce compatibility gaps with existing repositories
+- Comparing behavior across environments helps identify root causes effectively
+
+
+
+9. Conclusion
+
+- In this task, I attempted to install eSim 2.5 on Ubuntu 25.04 and identified multiple issues related to version compatibility, repository support, and script reliability. I analyzed
+  these issues by inspecting scripts and terminal outputs, and successfully fixed a script-level bug involving an incorrect apt command.
+
+- Further testing on Ubuntu 24.04 confirmed that the installer works correctly in a supported environment, indicating that most failures in Ubuntu 25.04 arise from compatibility
+  limitations rather than flawed logic.
+
+- Overall, this task provided valuable insights into real-world debugging, script analysis, and the importance of writing robust, maintainable, and future-proof installation systems.
+
+
