@@ -1,6 +1,6 @@
 
 
-                                 eSim 2.5 Installation and Debugging Report
+               eSim 2.5 Installation and Debugging Report
 
 
 
@@ -22,18 +22,32 @@ To investigate the problems, I:
 - explored the installation scripts using "nano"
 - used commands like "grep" to locate problematic lines
 - modified the script where necessary and re-ran the installer
+- I referred to terminal logs, documentation, and online resources to understand and resolve errors.
 
 After facing repeated failures, I also tested the installation on Ubuntu 24.04 to compare behavior and confirm whether the issues were due to the operating system version.
 
 
+3. Methodology
 
-3. **Issues Encountered on Ubuntu 25**
+The debugging process was carried out step-by-step:
+- Installed eSim 2.5 on Ubuntu 25.04
+- Observed errors during installation
+- Identified failing steps from terminal output
+- Inspected installation scripts to locate issues
+- Applied fixes and tested again
+- Compared behavior with Ubuntu 24.04 for verification
+- In cases where certain steps repeatedly failed, those parts of the script can be commented out to continue debugging further stages of installation.
+
+
+4. **Issues Encountered on Ubuntu 25**
+
+Several issues were encountered during installation on Ubuntu 25.04. The most critical ones are discussed below:
 
 #Issue 1: Unsupported Ubuntu Version
 
 Error Observed:
 The installer stopped with the message:
-“Unsupported Ubuntu version: 25.xx”
+    “Unsupported Ubuntu version: 25.xx”
 
 Investigation:
 I checked the main script ("install-eSim.sh") and found that it uses a "case" statement based on Ubuntu version. However, only versions up to 24.04 were included.
@@ -60,11 +74,18 @@ Investigation:
 To locate the issue, I used:
     grep -rn "xz-utils" .
 
-This helped me identify the exact line in the script where the incorrect command was written.
+The issue was identified by inspecting the relevant installation script using:
+    nano install-eSim-scripts/install-eSim-24.04.sh
+
+Although the issue was minor syntactically, it caused the installation process to fail at an early stage, making it a critical blocking error.
+This allowed me to trace the incorrect command within the script and confirm the source of the error.
 
 Analysis:
 The command is incorrect because "apt-get" requires the "install" keyword before specifying the package name. This type of syntax error indicates that the script lacks validation or
 testing for command correctness, which can break the entire installation process even for a small mistake.
+
+The original command in the script was:
+    sudo apt-get xz-utils
 
 Fix Applied:
 I corrected the command to:
@@ -79,7 +100,7 @@ syntax rather than a deeper dependency problem.
 #Issue 3: KiCad Repository (PPA) Error
 
 Error Observed:
-404 Not Found – repository does not have a Release file
+    404 Not Found – repository does not have a Release file
 
 Investigation:
 While running-
@@ -115,7 +136,7 @@ Ubuntu 25.04 is not currently stable for this installation due to multiple compa
 
 
 
-4. **Verification on Ubuntu 24.04**
+5. **Verification on Ubuntu 24.04**
 
 To verify whether the issues were version-specific, I performed the same installation on Ubuntu 24.04.
 
@@ -131,7 +152,7 @@ bug).
 
 
 
-5. Improvements and Suggestions
+6. Improvements and Suggestions
 
 During this process, I observed that the installer relies heavily on strict version-based checks and fixed assumptions.
 
@@ -146,7 +167,7 @@ These improvements would make the installer more flexible, robust, and future-pr
 
 
 
-6. Suggested Workaround for KiCad Issue
+7. Suggested Workaround for KiCad Issue
 
 One possible workaround for the KiCad repository issue is to:
 
@@ -157,7 +178,7 @@ This would allow the rest of the installation to proceed without interruption.
 
 
 
-7. Example of Script Modification
+8. Example of Script Modification
 
 The following change was made during debugging:
 
@@ -175,7 +196,7 @@ installation scripts. More importantly, it suggests that scripts should include 
 
 
 
-8. Key Learnings
+9. Key Learnings
 
 - Small syntax errors in scripts can completely break installation workflows
 - Debugging requires reading and understanding scripts, not just reacting to errors
@@ -185,7 +206,7 @@ installation scripts. More importantly, it suggests that scripts should include 
 
 
 
-9. Conclusion
+10. Conclusion
 
 - In this task, I attempted to install eSim 2.5 on Ubuntu 25.04 and identified multiple issues related to version compatibility, repository support, and script reliability. I analyzed
   these issues by inspecting scripts and terminal outputs, and successfully fixed a script-level bug involving an incorrect apt command.
