@@ -102,6 +102,12 @@ syntax rather than a deeper dependency problem.
 Error Observed:
     404 Not Found – repository does not have a Release file
 
+### Screenshots of error observed
+
+The following screenshots show the exact error encountered during installation:
+![KiCad Error](screenshots/kicad_error1.png)
+![KiCad Error](screenshots/kicad_error2.png)
+
 Investigation:
 While running-
     sudo apt update
