@@ -43,26 +43,34 @@ The debugging process was carried out step-by-step:
 
 Several issues were encountered during installation on Ubuntu 25.04. The most critical ones are discussed below:
 
-#Issue 1: Unsupported Ubuntu Version
+#Issue 1: Incorrect Handling of Ubuntu 25.04 Version
 
 Error Observed:
-The installer stopped with the message:
-    “Unsupported Ubuntu version: 25.xx”
+While running the installer on Ubuntu 25.04, no direct error message related to the version was shown. However, during execution, the installation did not behave as expected, which
+made me suspect that the version might not be handled properly.
+
+### Screenshots of error observed:
+![Version Mapping](screenshots/version_mapping.png)
 
 Investigation:
-I checked the main script ("install-eSim.sh") and found that it uses a "case" statement based on Ubuntu version. However, only versions up to 24.04 were included.
+To understand this, I checked the install-eSim.sh script and searched for how the Ubuntu version is being handled using:
+    grep -i "VERSION_ID" install-eSim.sh
 
-To confirm the Ubuntu version, I used:
-    lsb_release -a
-
-This showed that the system was running Ubuntu 25, which is not handled in the script.
+After going through the script, I found that a case statement is used to decide which installation script should run based on the Ubuntu version.
 
 Analysis:
-Since Ubuntu 25 was not handled in the script, the installer exited immediately.
+While reading the case block, I noticed that versions starting with "25." are not handled separately. Instead, they are redirected to use the Ubuntu 24.04 installation script:
+
+    "25."*)
+        SCRIPT="$SCRIPT_DIR/install-eSim-24.04.sh"
+
+This means that even though I was using Ubuntu 25.04, the script was treating it as Ubuntu 24.04. This might work partially, but it can also cause compatibility issues since newer
+versions may have different dependencies or behaviors.
 
 Conclusion:
-This reveals a limitation in the script design, where support for operating systems is hardcoded. As a result, newer versions like Ubuntu 25 fail even if they are largely compatible.
-A more robust approach would be to rely on dependency or feature detection instead of strict version checks, improving maintainability and forward compatibility.
+From this, I understood that the script does not truly support Ubuntu 25.xx. It just maps it to an older version, which is not a reliable solution. A better approach would be to
+either add proper support for newer versions or avoid strict version mapping and instead check for required dependencies directly.
+
 
 
 #Issue 2: Incorrect apt-get Command (Fixed)
