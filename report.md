@@ -145,6 +145,9 @@ Investigation:
 To further analyze dependency issues, I ran:
     sudo apt update 
 
+### Screenshot of dependency errors:
+![Repository error](screenshots/issue4_repository_error.png)
+
 During execution of this command, multiple repository-related and dependency errors were observed, indicating incompatibility with newer Ubuntu 25 repositories.
 
 Analysis:
