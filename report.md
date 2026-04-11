@@ -169,6 +169,11 @@ Observations:
 - Dependency installation worked correctly
 - The installation progressed much further compared to Ubuntu 25.04
 
+### Screenshots of verification on Ubuntu 24.04:
+
+![Ubuntu 24 verification part 1](screenshots/Ubuntu24_verification_part1.png)
+![Ubuntu 24 verification part 2](screenshots/Ubuntu24_verification_part2.png)
+
 Key Insight:
 The same script works properly on Ubuntu 24.04, confirming that most issues in Ubuntu 25.04 are due to compatibility limitations rather than incorrect logic (except the apt command 
 bug).
